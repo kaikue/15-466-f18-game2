@@ -170,15 +170,17 @@ void GameMode::update(float elapsed) {
 	//copy game state to scene positions:
 	ball_transform->position.x = state.ball.x;
 	ball_transform->position.y = state.ball.y;
-
+  
   bullet1_transform->position.x = state.bullet1.x;
   bullet1_transform->position.y = state.bullet1.y;
 
   bullet2_transform->position.x = state.bullet2.x;
   bullet2_transform->position.y = state.bullet2.y;
 
-	paddle1_transform->rotation.z = state.paddle1;
-	paddle2_transform->rotation.z = state.paddle2;
+  glm::vec3 paddle1_angles(0, 0, glm::radians(state.paddle1));
+  paddle1_transform->rotation = glm::quat(paddle1_angles);
+  glm::vec3 paddle2_angles(0, 0, glm::radians(state.paddle2));
+  paddle2_transform->rotation = glm::quat(paddle2_angles);
 }
 
 void GameMode::draw(glm::uvec2 const &drawable_size) {

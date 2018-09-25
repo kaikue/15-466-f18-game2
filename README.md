@@ -12,11 +12,11 @@ Screen Shot:
 
 How To Play:
 
-TODO: describe the controls and (if needed) goals/strategy.
+Use the up/down keys to angle your paddle. Press space to fire a bullet. Try to shoot the ball away from your side.
 
 Changes From The Design Document:
 
-TODO: what did you need to add/remove/modify from the original design? Why?
+I made there be only one bullet per person at a time, since it was easier to program (and adds some strategic depth, discouraging spamming bullets).
 
 Good / Bad / Ugly Code:
 

@@ -7,9 +7,9 @@ struct Game {
   float paddle2 = -90.0f;
 	glm::vec2 ball = glm::vec2(0.0f, 0.0f);
 	glm::vec2 ball_velocity = glm::vec2(0.0f,0.0f);
-  glm::vec2 bullet1 = glm::vec2(0.0f, 0.0f);
+  glm::vec2 bullet1 = glm::vec2(0.0f, 10.0f);
   glm::vec2 bullet1_velocity = glm::vec2(0.0f, 0.0f);
-  glm::vec2 bullet2 = glm::vec2(0.0f, 0.0f);
+  glm::vec2 bullet2 = glm::vec2(0.0f, 10.0f);
   glm::vec2 bullet2_velocity = glm::vec2(0.0f, 0.0f);
   int score1 = 0;
   int score2 = 0;
