@@ -126,6 +126,13 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
+void GameMode::draw_message(std::string message, float y) {
+  float height = 0.06f;
+  float width = text_width(message, height);
+  draw_text(message, glm::vec2(-0.5f * width, y), height, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  draw_text(message, glm::vec2(-0.5f * width, y + 0.01f), height, glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
+}
+
 void GameMode::update(float elapsed) {
 	state.update(elapsed);
 
@@ -152,8 +159,31 @@ void GameMode::update(float elapsed) {
         }
       }
       else {
-        //TODO: read state
+        assert(c->recv_buffer[0] == 's');
+        if (c->recv_buffer.size() < 1 + 8 * sizeof(float) + 2 * sizeof(unsigned short int)) {
+          return; //wait for more data
+        }
+        else {
+          memcpy(&state.ball.x, c->recv_buffer.data() + 1 + 0 * sizeof(float), sizeof(float));
+          memcpy(&state.ball.y, c->recv_buffer.data() + 1 + 1 * sizeof(float), sizeof(float));
+          memcpy(&state.bullet1.x, c->recv_buffer.data() + 1 + 2 * sizeof(float), sizeof(float));
+          memcpy(&state.bullet1.y, c->recv_buffer.data() + 1 + 3 * sizeof(float), sizeof(float));
+          memcpy(&state.bullet2.x, c->recv_buffer.data() + 1 + 4 * sizeof(float), sizeof(float));
+          memcpy(&state.bullet2.y, c->recv_buffer.data() + 1 + 5 * sizeof(float), sizeof(float));
 
+          //don't adjust our own angle to the server's
+          if (!state.is_player1) {
+            memcpy(&state.paddle1, c->recv_buffer.data() + 1 + 6 * sizeof(float), sizeof(float));
+          }
+          else {
+            memcpy(&state.paddle2, c->recv_buffer.data() + 1 + 7 * sizeof(float), sizeof(float));
+          }
+
+          memcpy(&state.score1, c->recv_buffer.data() + 1 + 8 * sizeof(float), sizeof(unsigned short int));
+          memcpy(&state.score2, c->recv_buffer.data() + 1 + 8 * sizeof(float) + sizeof(unsigned short int), sizeof(unsigned short int));
+          
+          c->recv_buffer.erase(c->recv_buffer.begin(), c->recv_buffer.begin() + 1 + 8 * sizeof(float) + 2 * sizeof(unsigned short int));
+        }
       }
     }
   });
@@ -196,6 +226,7 @@ void GameMode::update(float elapsed) {
 
   glm::vec3 paddle1_angles(0, 0, glm::radians(state.paddle1));
   paddle1_transform->rotation = glm::quat(paddle1_angles);
+  
   glm::vec3 paddle2_angles(0, 0, glm::radians(state.paddle2));
   paddle2_transform->rotation = glm::quat(paddle2_angles);
 }
@@ -235,11 +266,23 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
   if (state.score2 == 0) {
     message = message + "NIL";
   }
-  float height = 0.06f;
-  float width = text_width(message, height);
-  float y = 0.9f;
-  draw_text(message, glm::vec2(-0.5f * width, y), height, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-  draw_text(message, glm::vec2(-0.5f * width, y + 0.01f), height, glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
+  draw_message(message, 0.9f);
+
+  if (state.score1 >= state.win_score) {
+    state.won = state.is_player1;
+    state.lost = !state.is_player1;
+  }
+  else if (state.score2 >= state.win_score) {
+    state.won = !state.is_player1;
+    state.lost = state.is_player1;
+  }
+
+  if (state.won) {
+    draw_message("*** YOU WON ***", 0.0f);
+  }
+  else if (state.lost) {
+    draw_message("*** YOU LOST ***", 0.0f);
+  }
 
 	GL_ERRORS();
 }

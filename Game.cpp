@@ -6,14 +6,22 @@ bool Game::check_point(glm::vec2 pt) {
   float len2 = glm::dot(to, to);
   if (len2 > BallRadius * BallRadius) return false;
   //if point is inside ball, make ball velocity outward-going:
-  float d = glm::dot(ball_velocity, to);
-  ball_velocity += ((std::abs(d) - d) / len2) * to;
+  //float d = glm::dot(ball_velocity, to);
+  //ball_velocity += ((std::abs(d) - d) / len2) * to;
+  ball_velocity = to * (ball_speed / to.length());
+  std::cout << "ballvel: " << ball_velocity.x << " " << ball_velocity.y << std::endl;
   return true;
 }
 
 void Game::check_score() {
-  //TODO
-  //ok to do this clientside
+  if (score1 >= win_score) {
+    won = is_player1;
+    lost = !is_player1;
+  }
+  else if (score2 >= win_score) {
+    won = !is_player1;
+    lost = is_player1;
+  }
 }
 
 void Game::reset_ball() {
@@ -24,11 +32,13 @@ void Game::reset_ball() {
 }
 
 void Game::update(float time) {
+  if (won || lost) return;
+
   if (fire1) {
     bullet1.x = -bullet_startx;
     bullet1.y = 0.0f;
-    bullet1_velocity.x = glm::cos(glm::radians(paddle1)) * bullet_speed;
-    bullet1_velocity.y = glm::sin(glm::radians(paddle1)) * bullet_speed;
+    bullet1_velocity.x = glm::cos(glm::radians(paddle1 - 90.0f)) * bullet_speed;
+    bullet1_velocity.y = glm::sin(glm::radians(paddle1 - 90.0f)) * bullet_speed;
     std::cout << "fire1" << std::endl;
     fire1 = false;
   }
@@ -36,8 +46,8 @@ void Game::update(float time) {
   if (fire2) {
     bullet2.x = bullet_startx;
     bullet2.y = 0.0f;
-    bullet2_velocity.x = glm::cos(glm::radians(paddle2)) * bullet_speed;
-    bullet2_velocity.y = glm::sin(glm::radians(paddle2)) * bullet_speed;
+    bullet2_velocity.x = glm::cos(glm::radians(paddle2 - 90.0f)) * bullet_speed;
+    bullet2_velocity.y = glm::sin(glm::radians(paddle2 - 90.0f)) * bullet_speed;
     std::cout << "fire2" << std::endl;
     fire2 = false;
   }
@@ -71,8 +81,18 @@ void Game::update(float time) {
 		ball_velocity += ((std::abs(d) - d) / len2) * to;
 	};*/
 
-  check_point(bullet1);
-  check_point(bullet2);
+  if (check_point(bullet1)) {
+    bullet1.x = 0.0f;
+    bullet1.y = 10.0f;
+    bullet1_velocity.x = 0.0f;
+    bullet1_velocity.y = 0.0f;
+  }
+  if (check_point(bullet2)) {
+    bullet2.x = 0.0f;
+    bullet2.y = 10.0f;
+    bullet2_velocity.x = 0.0f;
+    bullet2_velocity.y = 0.0f;
+  }
 
 	/*auto do_edge = [&](glm::vec2 const &a, glm::vec2 const &b) {
 		float along = glm::dot(ball-a, b-a);

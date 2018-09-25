@@ -5,6 +5,22 @@
 #include <set>
 #include <chrono>
 
+void send_state(Connection *c, Game *state) {
+  if (c) {
+    c->send_raw("s", 1);
+    c->send(state->ball.x);
+    c->send(state->ball.y);
+    c->send(state->bullet1.x);
+    c->send(state->bullet1.y);
+    c->send(state->bullet2.x);
+    c->send(state->bullet2.y);
+    c->send(state->paddle1);
+    c->send(state->paddle2);
+    c->send(state->score1);
+    c->send(state->score2);
+  }
+}
+
 int main(int argc, char **argv) {
 	if (argc != 2) {
 		std::cerr << "Usage:\n\t./server <port>" << std::endl;
@@ -16,8 +32,8 @@ int main(int argc, char **argv) {
 	Game state;
   int num_players = 0;
 
-  Connection *p1 = nullptr;
-  Connection *p2 = nullptr;
+  Connection *c1 = nullptr;
+  Connection *c2 = nullptr;
 
   auto then = std::chrono::high_resolution_clock::now();
 
@@ -27,13 +43,13 @@ int main(int argc, char **argv) {
         if (num_players == 0) {
           std::cout << c << ": Got player 1." << std::endl;
           c->send_raw("p1", 2);
-          p1 = c;
+          c1 = c;
           num_players++;
         }
         else if (num_players == 1) {
           std::cout << c << ": Got player 2." << std::endl;
           c->send_raw("p2", 2);
-          p2 = c;
+          c2 = c;
           num_players++;
         }
         else {
@@ -52,7 +68,6 @@ int main(int argc, char **argv) {
             bool is_p1 = c->recv_buffer[1] == '1';
             bool fire = c->recv_buffer[2] == '1';
             if (fire) {
-              std::cout << "fire..." << std::endl;
               if (is_p1) state.fire1 = true;
               else state.fire2 = true;
             }
@@ -66,10 +81,11 @@ int main(int argc, char **argv) {
     //based on https://stackoverflow.com/a/14391562
     auto now = std::chrono::high_resolution_clock::now();
     float diff = std::chrono::duration_cast<std::chrono::duration<float>>(now - then).count();
-		if (diff > 0.015f) {
+		if (diff > 0.05f) {
       state.update(diff);
 			then = now;
-      //send to p1 and p2, if not null
+      send_state(c1, &state);
+      send_state(c2, &state);
 		}
 	}
 }

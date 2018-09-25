@@ -12,15 +12,25 @@ Screen Shot:
 
 How To Play:
 
-Use the up/down keys to angle your paddle. Press space to fire a bullet. Try to shoot the ball away from your side.
+Use the up/down keys to angle your paddle. Press space to fire a bullet. Try to shoot the ball away from your side and into the other player's. The first player to 5 points wins.
+
+To run the server executable: server.exe <port> (e.g., server.exe 9999)
+
+To run the client executable: client.exe <host> <port> (e.g., client.exe localhost 9999)
 
 Changes From The Design Document:
 
 I made there be only one bullet per person at a time, since it was easier to program (and adds some strategic depth, discouraging spamming bullets).
 
+After playing some I realized that the angle did not matter a whole lot since the paddles/turrets were fixed. This could potentially be changed for a more interesting game.
+
 Good / Bad / Ugly Code:
 
-TODO: provide examples of code you wrote from this project that you think is good (elegant, simple, useful), bad (hack-y, brittle, unreadable), and ugly (particularly inelegant). Provide a sentence or two of justification for the examples.
+Good: I accept exactly two player clients, telling them which player they are, then reject any further clients.
+
+Bad: The client display is really laggy for some reason, especially for player 2. I don't know why this happens.
+
+Ugly: The win/lose logic is duplicated between client and server. I also didn't sync velocities in a (possibly misguided) attempt to save on bandwidth, so things look a little jerky.
 
 # Using This Base Code
 

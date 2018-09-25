@@ -27,6 +27,8 @@ struct GameMode : public Mode {
 	//update is called at the start of a new frame, after events are handled:
 	virtual void update(float elapsed) override;
 
+  void draw_message(std::string message, float y);
+
 	//draw is called after update:
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
