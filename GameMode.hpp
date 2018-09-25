@@ -33,6 +33,14 @@ struct GameMode : public Mode {
 	//------- game state -------
 	Game state;
 
+  struct {
+    bool up = false;
+    bool down = false;
+    bool fire = false;
+  } controls;
+
+  float paddle_speed = 3.0f;
+
 	//------ networking ------
 	Client &client; //client object; manages connection to server.
 };

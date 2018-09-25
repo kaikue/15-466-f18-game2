@@ -1,11 +1,10 @@
 # Game Information
-(Note: fill in this portion with information about your game.)
 
-Title: (TODO: your game's title)
+Title: Indirect Pong
 
-Author: (TODO: your name)
+Author: Kai Kuehner
 
-Design Document: [TODO: name of design document](TODO: link to design document)
+Design Document: [Indirect Pong](http://graphics.cs.cmu.edu/courses/15-466-f18/game2-designs/kkuehner/)
 
 Screen Shot:
 
@@ -58,13 +57,13 @@ Before you dive into the code, it helps to understand the overall structure of t
 The ```meshes/export-meshes.py``` script can write mesh data including a variety of attributes (e.g., *p*ositions, *n*ormals, *c*olors, *t*excoords) from a selected layer of a blend file:
 
 ```
-blender --background --python meshes/export-meshes.py -- meshes/crates.blend:1 dist/crates.pnc
+blender --background --python meshes/export-meshes.py -- meshes/paddle-ball.blend:1 dist/paddle-ball.pnc
 ```
 
 The ```meshes/export-scene.py``` script can write the transformation hierarchy of the scene from a selected layer of a blend file, and includes references to meshes (by name):
 
 ```
-blender --background --python meshes/export-scene.py -- meshes/crates.blend:1 dist/crates.scene
+blender --background --python meshes/export-scene.py -- meshes/paddle-ball.blend:1 dist/paddle-ball.scene
 ```
 
 The ```meshes/export-walkmeshes.py``` script can writes vertices, normals, and triangle indicies of all meshes on a selected layer of a .blend file:

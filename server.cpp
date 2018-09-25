@@ -24,11 +24,15 @@ int main(int argc, char **argv) {
 					c->recv_buffer.erase(c->recv_buffer.begin(), c->recv_buffer.begin() + 1);
 					std::cout << c << ": Got hello." << std::endl;
 				} else if (c->recv_buffer[0] == 's') {
-					if (c->recv_buffer.size() < 1 + sizeof(float)) {
+					if (c->recv_buffer.size() < 3 + sizeof(float)) {
 						return; //wait for more data
 					} else {
-						memcpy(&state.paddle.x, c->recv_buffer.data() + 1, sizeof(float));
-						c->recv_buffer.erase(c->recv_buffer.begin(), c->recv_buffer.begin() + 1 + sizeof(float));
+            bool is_p1 = c->recv_buffer[1] == '1';
+            bool fire = c->recv_buffer[2] == '1';
+            if (is_p1) state.fire1 = fire;
+            else state.fire2 = fire;
+						memcpy(is_p1 ? &state.paddle1 : &state.paddle2, c->recv_buffer.data() + 3, sizeof(float));
+						c->recv_buffer.erase(c->recv_buffer.begin(), c->recv_buffer.begin() + 3 + sizeof(float));
 					}
 				}
 			}
@@ -38,7 +42,7 @@ int main(int argc, char **argv) {
 		auto now = std::chrono::steady_clock::now();
 		if (now > then + std::chrono::seconds(1)) {
 			then = now;
-			std::cout << "Current paddle position: " << state.paddle.x << std::endl;
+			std::cout << "Current ball position: " << state.ball.x << ", " << state.ball.y << std::endl;
 		}
 	}
 }
