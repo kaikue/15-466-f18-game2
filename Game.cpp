@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <iostream>
 
 bool Game::check_point(glm::vec2 pt) {
   glm::vec2 to = ball - pt;
@@ -12,7 +13,7 @@ bool Game::check_point(glm::vec2 pt) {
 
 void Game::check_score() {
   //TODO
-
+  //ok to do this clientside
 }
 
 void Game::reset_ball() {
@@ -26,15 +27,19 @@ void Game::update(float time) {
   if (fire1) {
     bullet1.x = -bullet_startx;
     bullet1.y = 0.0f;
-    bullet1_velocity.x = glm::cos(paddle1) * bullet_speed;
-    bullet1_velocity.y = glm::sin(paddle1) * bullet_speed;
+    bullet1_velocity.x = glm::cos(glm::radians(paddle1)) * bullet_speed;
+    bullet1_velocity.y = glm::sin(glm::radians(paddle1)) * bullet_speed;
+    std::cout << "fire1" << std::endl;
+    fire1 = false;
   }
 
   if (fire2) {
     bullet2.x = bullet_startx;
     bullet2.y = 0.0f;
-    bullet2_velocity.x = cos(paddle2) * bullet_speed;
-    bullet2_velocity.y = sin(paddle2) * bullet_speed;
+    bullet2_velocity.x = glm::cos(glm::radians(paddle2)) * bullet_speed;
+    bullet2_velocity.y = glm::sin(glm::radians(paddle2)) * bullet_speed;
+    std::cout << "fire2" << std::endl;
+    fire2 = false;
   }
 
   bullet1 += bullet1_velocity * time;

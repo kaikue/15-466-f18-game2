@@ -95,7 +95,6 @@ Load< Scene > scene(LoadTagDefault, [](){
 
 GameMode::GameMode(Client &client_) : client(client_) {
 	client.connection.send_raw("h", 1); //send a 'hello' to the server
-  //TODO: set state.is_player1 based on server response
 }
 
 GameMode::~GameMode() {
@@ -130,6 +129,35 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 void GameMode::update(float elapsed) {
 	state.update(elapsed);
 
+  client.poll([&](Connection *c, Connection::Event event) {
+    if (event == Connection::OnOpen) {
+      //probably won't get this.
+    }
+    else if (event == Connection::OnClose) {
+      std::cerr << "Lost connection to server." << std::endl;
+    }
+    else {
+      assert(event == Connection::OnRecv);
+      if (c->recv_buffer[0] == 'p') {
+        if (c->recv_buffer.size() < 2) {
+          return; //wait for more data
+        }
+        else {
+          if (c->recv_buffer[1] == '0') {
+            std::cout << "Server already has 2 players." << std::endl;
+            exit(0);
+          }
+          state.is_player1 = c->recv_buffer[1] == '1';
+          c->recv_buffer.erase(c->recv_buffer.begin(), c->recv_buffer.begin() + 2);
+        }
+      }
+      else {
+        //TODO: read state
+
+      }
+    }
+  });
+
   if (controls.up) {
     if (state.is_player1) {
       state.paddle1 = glm::min(180.0f, state.paddle1 + paddle_speed);
@@ -156,17 +184,6 @@ void GameMode::update(float elapsed) {
 	}
   controls.fire = false;
 
-	client.poll([&](Connection *c, Connection::Event event){
-		if (event == Connection::OnOpen) {
-			//probably won't get this.
-		} else if (event == Connection::OnClose) {
-			std::cerr << "Lost connection to server." << std::endl;
-		} else { assert(event == Connection::OnRecv);
-			std::cerr << "Ignoring " << c->recv_buffer.size() << " bytes from server." << std::endl;
-			c->recv_buffer.clear();
-		}
-	});
-
 	//copy game state to scene positions:
 	ball_transform->position.x = state.ball.x;
 	ball_transform->position.y = state.ball.y;
@@ -184,25 +201,6 @@ void GameMode::update(float elapsed) {
 }
 
 void GameMode::draw(glm::uvec2 const &drawable_size) {
-  std::string message = " TO ";
-  for (int i = 0; i < state.score1; i++) {
-    message = "*" + message;
-  }
-  if (state.score1 == 0) {
-    message = "NIL" + message;
-  }
-  for (int i = 0; i < state.score2; i++) {
-    message = message + "*";
-  }
-  if (state.score2 == 0) {
-    message = message + "NIL";
-  }
-  float height = 0.06f;
-  float width = text_width(message, height);
-  float y = 0.9f;
-  draw_text(message, glm::vec2(-0.5f * width, y + 0.01f), height, glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
-  draw_text(message, glm::vec2(-0.5f * width, y), height, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
 	camera->aspect = drawable_size.x / float(drawable_size.y);
 
 	glClearColor(0.25f, 0.0f, 0.5f, 0.0f);
@@ -223,6 +221,25 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	glUniform3fv(vertex_color_program->sky_direction_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 1.0f, 0.0f)));
 
 	scene->draw(camera);
+
+  std::string message = " TO ";
+  for (int i = 0; i < state.score1; i++) {
+    message = "*" + message;
+  }
+  if (state.score1 == 0) {
+    message = "NIL" + message;
+  }
+  for (int i = 0; i < state.score2; i++) {
+    message = message + "*";
+  }
+  if (state.score2 == 0) {
+    message = message + "NIL";
+  }
+  float height = 0.06f;
+  float width = text_width(message, height);
+  float y = 0.9f;
+  draw_text(message, glm::vec2(-0.5f * width, y), height, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  draw_text(message, glm::vec2(-0.5f * width, y + 0.01f), height, glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
 	GL_ERRORS();
 }

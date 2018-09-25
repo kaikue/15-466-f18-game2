@@ -29,5 +29,5 @@ struct Game {
 	static constexpr const float PaddleHeight = 0.4f;
 	static constexpr const float BallRadius = 0.5f;
   const float bullet_startx = 5.0f;
-  const float bullet_speed = 5.0f;
+  const float bullet_speed = 3.0f;
 };
